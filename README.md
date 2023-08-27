@@ -26,11 +26,6 @@ sudo docker compose exec backend python manage.py migrate
 sudo docker compose exec backend python manage.py createsuperuser
 ```
 
-- Собрать статику:
-```
-sudo docker compose exec backend python manage.py collectstatic --noinput
-```
-
 - Наполнить базу данных содержимым из файла ingredients.json:
 ```
 sudo docker compose exec backend python manage.py loaddata ingredients.json
