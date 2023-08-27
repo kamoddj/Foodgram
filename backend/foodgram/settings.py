@@ -7,11 +7,11 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv(key='SECRET_KEY', )
+SECRET_KEY = os.getenv(key='SECRET_KEY', default='secret_key')
 
 DEBUG = True
 
-# ALLOWED_HOSTS = ['158.160.69.213', '127.0.0.1', 'localhost', 'free-foodgram.ddns.net', 'backend:8000']
+# ALLOWED_HOSTS = ['158.160.69.213', '127.0.0.1', 'localhost', 'free-foodgram.ddns.net']
 # ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1')
 
