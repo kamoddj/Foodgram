@@ -26,7 +26,17 @@ sudo docker compose exec backend python manage.py migrate
 sudo docker compose exec backend python manage.py createsuperuser
 ```
 
+- Собрать статику:
+```
+sudo docker compose -f docker-compose.yml exec backend python manage.py collectstatic --no-input
+```
+
 - Наполнить базу данных содержимым из файла ingredients.json:
 ```
 sudo docker compose exec backend python manage.py loaddata ingredients.json
+```
+
+## Через Git Action настроена автоматизация, после git push в ветку master. Тебе останеться лишь создать суперюзера.
+```
+sudo docker compose exec backend python manage.py createsuperuser
 ```

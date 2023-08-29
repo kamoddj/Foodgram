@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.db.models import F
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
@@ -46,9 +47,11 @@ class CustomUserSerializer(UserSerializer):
         на просматриваемого пользователя.
         """
         user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
-        return Subscribe.objects.filter(user=user, author=obj).exists()
+        return (user.is_authenticated
+                and Subscribe.objects.filter(user=user, author=obj).exists())
+        # if user.is_anonymous:
+        #     return False
+        # return Subscribe.objects.filter(user=user, author=obj).exists()
 
 
 class SubscribeSerializer(CustomUserSerializer):
@@ -77,7 +80,6 @@ class SubscribeSerializer(CustomUserSerializer):
                 detail='Вы не можете подписаться на самого себя!',
                 code=status.HTTP_400_BAD_REQUEST
             )
-        print(data)
         return data
 
     def get_recipes_count(self, obj):
@@ -154,16 +156,20 @@ class RecipeReadSerializer(ModelSerializer):
     def get_is_favorited(self, obj):
         """ Проверка - находится ли рецепт в избранном. """
         user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
-        return user.favorites.filter(recipe=obj).exists()
+        return (user.is_authenticated
+                and user.favorites.filter(recipe=obj).exists())
+        # if user.is_anonymous:
+        #     return False
+        # return user.favorites.filter(recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
         """ Проверка - находится ли рецепт в списке покупок. """
         user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
-        return user.shopping_cart.filter(recipe=obj).exists()
+        return (user.is_authenticated
+                and user.shopping_cart.filter(recipe=obj).exists())
+        # if user.is_anonymous:
+        #     return False
+        # return user.shopping_cart.filter(recipe=obj).exists()
 
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
@@ -233,6 +239,7 @@ class RecipeWriteSerializer(ModelSerializer):
             tags_list.append(tag)
         return value
 
+    @staticmethod
     def create_ingredients_amounts(self, ingredients, recipe):
         """ Метод возвращает созданные объекты и
         вставляет предоставленный список объектов в БД.
@@ -245,8 +252,12 @@ class RecipeWriteSerializer(ModelSerializer):
             ) for ingredient in ingredients]
         )
 
+    @transaction.atomic
     def create(self, validated_data):
-        """ Метод создает рецепт. """
+        """ Метод создает рецепт.
+        Если блок кода успешно завершен, изменения фиксируются в базе данных.
+        Если есть исключение, изменения отменяются.
+        """
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
@@ -255,8 +266,12 @@ class RecipeWriteSerializer(ModelSerializer):
                                         ingredients=ingredients)
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
-        """ Метод для обновления рецепта. """
+        """ Метод для обновления рецепта.
+        Если блок кода успешно завершен, изменения фиксируются в базе данных.
+        Если есть исключение, изменения отменяются.
+        """
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         instance = super().update(instance, validated_data)

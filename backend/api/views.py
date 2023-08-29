@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from api.utils import create_txt
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -51,7 +52,7 @@ class RecipeViewSet(ModelViewSet):
     Отправка текстового файла со списком покупок.
     Для авторизованных пользователей — возможность добавить
     рецепт в избранное и в список покупок.
-    Изменять рецепт может только автор или админы.
+    Изменять рецепт может только автор или администраторы.
     """
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrReadOnly | IsAdminOrReadOnly,)
@@ -80,8 +81,7 @@ class RecipeViewSet(ModelViewSet):
         """ Добавляет/удалет рецепт в `избранное`. """
         if request.method == 'POST':
             return self.add_to(Favourite, request.user, pk)
-        else:
-            return self.delete_from(Favourite, request.user, pk)
+        return self.delete_from(Favourite, request.user, pk)
 
     @action(
         detail=True,
@@ -92,8 +92,7 @@ class RecipeViewSet(ModelViewSet):
         """ Добавляет/удалет рецепт в `список покупок`. """
         if request.method == 'POST':
             return self.add_to(ShoppingCart, request.user, pk)
-        else:
-            return self.delete_from(ShoppingCart, request.user, pk)
+        return self.delete_from(ShoppingCart, request.user, pk)
 
     def add_to(self, model, user, pk):
         """ Метод добавления рецепта.
@@ -144,13 +143,16 @@ class RecipeViewSet(ModelViewSet):
             f'Список покупок для: {user.get_full_name()}\n\n'
             f'Дата: {today:%Y-%m-%d}\n\n'
         )
-        shopping_list += '\n'.join([
-            f'- {ingredient["ingredient__name"]} '
-            f'({ingredient["ingredient__measurement_unit"]})'
-            f' - {ingredient["amount"]}'
-            for ingredient in ingredients
-        ])
-        shopping_list += f'\n\nFoodgram ({today:%Y})'
+        create_txt(shopping_list=shopping_list,
+                   ingredients=ingredients,
+                   today=today)
+        # shopping_list += '\n'.join([
+        #     f'- {ingredient["ingredient__name"]} '
+        #     f'({ingredient["ingredient__measurement_unit"]})'
+        #     f' - {ingredient["amount"]}'
+        #     for ingredient in ingredients
+        # ])
+        # shopping_list += f'\n\nFoodgram ({today:%Y})'
 
         filename = f'{user.username}_shopping_list.txt'
         response = HttpResponse(shopping_list, content_type='text/plain')
