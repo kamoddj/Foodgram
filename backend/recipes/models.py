@@ -3,6 +3,8 @@ from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.db.models import UniqueConstraint
 
+from api.conf import LIMIT
+
 User = get_user_model()
 
 
@@ -11,8 +13,8 @@ class Ingredient(models.Model):
 
     Связана с моделью Recipe M2M (IngredientInRecipe).
     """
-    name = models.CharField('Название', max_length=200)
-    measurement_unit = models.CharField('Единица измерения', max_length=200)
+    name = models.CharField('Название', max_length=LIMIT)
+    measurement_unit = models.CharField('Единица измерения', max_length=LIMIT)
 
     class Meta:
         verbose_name = 'Ингредиент'
@@ -29,7 +31,7 @@ class Tag(models.Model):
     Связано с моделью Recipe через М2М.
     Поля `name` и 'slug` - обязательны для заполнения.
     """
-    name = models.CharField('Название', unique=True, max_length=200)
+    name = models.CharField('Название', unique=True, max_length=LIMIT)
     color = models.CharField(
         'Цветовой HEX-код',
         unique=True,
@@ -41,7 +43,7 @@ class Tag(models.Model):
             )
         ]
     )
-    slug = models.SlugField('Уникальный слаг', unique=True, max_length=200)
+    slug = models.SlugField('Уникальный слаг', unique=True, max_length=LIMIT)
 
     class Meta:
         verbose_name = 'Тег'
@@ -56,7 +58,7 @@ class Recipe(models.Model):
 
     Основная модель приложения описывающая рецепты.
     """
-    name = models.CharField('Название', max_length=200)
+    name = models.CharField('Название', max_length=LIMIT)
     author = models.ForeignKey(
         User,
         related_name='recipes',
