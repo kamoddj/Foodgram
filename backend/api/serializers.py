@@ -49,9 +49,6 @@ class CustomUserSerializer(UserSerializer):
         user = self.context.get('request').user
         return (user.is_authenticated
                 and Subscribe.objects.filter(user=user, author=obj).exists())
-        # if user.is_anonymous:
-        #     return False
-        # return Subscribe.objects.filter(user=user, author=obj).exists()
 
 
 class SubscribeSerializer(CustomUserSerializer):
@@ -158,18 +155,12 @@ class RecipeReadSerializer(ModelSerializer):
         user = self.context.get('request').user
         return (user.is_authenticated
                 and user.favorites.filter(recipe=obj).exists())
-        # if user.is_anonymous:
-        #     return False
-        # return user.favorites.filter(recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
         """ Проверка - находится ли рецепт в списке покупок. """
         user = self.context.get('request').user
         return (user.is_authenticated
                 and user.shopping_cart.filter(recipe=obj).exists())
-        # if user.is_anonymous:
-        #     return False
-        # return user.shopping_cart.filter(recipe=obj).exists()
 
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
@@ -239,7 +230,8 @@ class RecipeWriteSerializer(ModelSerializer):
             tags_list.append(tag)
         return value
 
-    @staticmethod
+    # @staticmethod - делая метод статическим перестают создаваться рецепты
+    @transaction.atomic
     def create_ingredients_amounts(self, ingredients, recipe):
         """ Метод возвращает созданные объекты и
         вставляет предоставленный список объектов в БД.
