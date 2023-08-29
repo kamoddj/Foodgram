@@ -1,9 +1,9 @@
-from api.conf import LIMIT
-
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.db.models import UniqueConstraint
+
+from api.conf import LIMIT
 
 User = get_user_model()
 
