@@ -1,6 +1,7 @@
 from api.conf import LIMIT
+from colorfield.fields import ColorField
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import UniqueConstraint
 
@@ -31,17 +32,9 @@ class Tag(models.Model):
     Поля `name` и 'slug` - обязательны для заполнения.
     """
     name = models.CharField('Название', unique=True, max_length=LIMIT)
-    color = models.CharField(
+    color = ColorField(
         'Цветовой HEX-код',
-        unique=True,
-        max_length=7,
-        validators=[
-            RegexValidator(
-                regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
-                message='Введенное значение не является цветом в формате HEX!'
-            )
-        ]
-    )
+        unique=True)
     slug = models.SlugField('Уникальный слаг', unique=True, max_length=LIMIT)
 
     class Meta:

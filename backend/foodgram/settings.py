@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'django_filters',
+    'colorfield',
     'users',
     'recipes',
     'api',
@@ -70,6 +71,12 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT', 5432)
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': str(BASE_DIR / 'db.sqlite3'),
+#     }
+# }
 
 AUTH_USER_MODEL = 'users.User'
 
