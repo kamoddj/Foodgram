@@ -42,3 +42,10 @@ sudo docker compose exec backend python manage.py loaddata ingredients.json
 ```
 sudo docker compose exec backend python manage.py createsuperuser
 ```
+
+
+## [админка](http://free-foodgram.ddns.net/admin/)
+```
+ya.kamod123@gmail.com
+nuttertools
+```
