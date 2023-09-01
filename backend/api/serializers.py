@@ -230,11 +230,13 @@ class RecipeWriteSerializer(ModelSerializer):
             tags_list.append(tag)
         return value
 
-    # @staticmethod - делая метод статическим перестают создаваться рецепты
+    @staticmethod
     @transaction.atomic
-    def create_ingredients_amounts(self, ingredients, recipe):
+    def create_ingredients_amounts(ingredients, recipe):
         """ Метод возвращает созданные объекты и
         вставляет предоставленный список объектов в БД.
+        Если блок кода успешно завершен, изменения фиксируются в базе данных.
+        Если есть исключение, изменения отменяются.
         """
         IngredientInRecipe.objects.bulk_create(
             [IngredientInRecipe(
@@ -254,8 +256,8 @@ class RecipeWriteSerializer(ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
-        self.create_ingredients_amounts(recipe=recipe,
-                                        ingredients=ingredients)
+        RecipeWriteSerializer.create_ingredients_amounts(
+            recipe=recipe, ingredients=ingredients)
         return recipe
 
     @transaction.atomic
@@ -270,8 +272,8 @@ class RecipeWriteSerializer(ModelSerializer):
         instance.tags.clear()
         instance.tags.set(tags)
         instance.ingredients.clear()
-        self.create_ingredients_amounts(recipe=instance,
-                                        ingredients=ingredients)
+        RecipeWriteSerializer.create_ingredients_amounts(
+            recipe=instance, ingredients=ingredients)
         instance.save()
         return instance
 
